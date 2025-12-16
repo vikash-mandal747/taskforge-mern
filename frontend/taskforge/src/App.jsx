@@ -3,8 +3,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
+  const { user } = useAuth();
+  console.log("Auth user:", user);
   return (
     <BrowserRouter>
       <Routes>
