@@ -1,41 +1,46 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import jwtDecode from "jwt-decode";
+import api from "../api/axios";
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // { token, role }
-  const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  // Load auth state from localStorage on app start
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    // Restore session on refresh
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            const decoded = jwtDecode(token);
+            setUser({ id: decoded.userId, role: decoded.role });
+        }
+        setLoading(false);
+    }, []);
 
-    if (token && role) {
-      setUser({ token, role });
-    }
+    const login = async (email, password) => {
+        const res = await api.post("/login", { email, password });
 
-    setLoading(false);
-  }, []);
+        const { accessToken } = res.data;
+        localStorage.setItem("accessToken", accessToken);
 
-  const login = (token, role) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
-    setUser({ token, role });
-  };
+        const decoded = jwtDecode(accessToken);
+        setUser({ id: decoded.userId, role: decoded.role });
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setUser(null);
-  };
+        return decoded.role;
+    };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+    const logout = () => {
+        localStorage.removeItem("accessToken");
+        setUser(null);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-// Custom hook
+
 export const useAuth = () => useContext(AuthContext);
