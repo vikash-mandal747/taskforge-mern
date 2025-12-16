@@ -1,23 +1,31 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+// Pages (dummy for now)
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import AdminDashboard from "./pages/AdminDashboard";
-import UserDashboard from "./pages/UserDashboard";
-import { useAuth } from "./context/AuthContext";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import UserDashboard from "./pages/user/UserDashboard";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
-  const { user } = useAuth();
-  console.log("Auth user:", user);
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
-        {/* Protected routes (logic later) */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/user" element={<UserDashboard />} />
+        {/* Public */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Admin Protected */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
+
+        {/* User Protected */}
+        <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+          <Route path="/dashboard" element={<UserDashboard />} />
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );
