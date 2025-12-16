@@ -3,6 +3,7 @@ const DBConnection = require("./src/config/mongoDB.config");
 const userRouter = require("./src/routes/user.route");
 const projectRouter = require("./src/routes/project.routes");
 const taskRouter = require("./src/routes/task.routes");
+const dashboardRouter = require("./src/routes/dashboard.routes");
 const app = express();
 require('dotenv').config();
 
@@ -17,6 +18,9 @@ app.use("/api/users", userRouter);
 app.use("/api/projects", projectRouter);
 // task routes
 app.use("/api/tasks", taskRouter);
+//dashboard routes
+app.use("/api/dashboard", dashboardRouter);
+
 DBConnection();
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
